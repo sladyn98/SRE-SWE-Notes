@@ -202,10 +202,3 @@ This error tells me that nslookup couldn't communicate with my DNS server. That 
 5) Do a traceroute and search for ***** it could be a problem with the remote port
 
 
-
-complete networking
-complete linux in depth
-complete vmware
-grading
-
-

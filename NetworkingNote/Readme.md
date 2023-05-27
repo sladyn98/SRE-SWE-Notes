@@ -141,3 +141,38 @@ The 8 steps in a DNS lookup:
 * MX record - Directs mail to an email server. Learn more about the MX record.
 * TXT record - Lets an admin store text notes in the record. These records are often used for email security. Learn more about the TXT record.
 
+
+### Structure of a URL
+A URL (Uniform Resource Locator) is a string of characters that provides the address and means to access a resource on the internet. It typically consists of several components that define the structure and location of the resource. Here's a breakdown of the structure of a URL:
+
+Scheme: The scheme indicates the protocol or scheme used to access the resource. It specifies the rules and format for communication. Common schemes include "http://" for Hypertext Transfer Protocol and "https://" for secure HTTP. Other examples include "ftp://" for File Transfer Protocol and "mailto://" for email.
+
+Authority: The authority component includes the domain name or IP address of the server hosting the resource. It can also include optional user credentials for authentication, such as username and password. The authority component is typically preceded by "//".
+
+Path: The path specifies the specific location or path to the resource on the server. It can consist of directories or folders separated by slashes ("/"). For example, "/blog/article" indicates that the resource is located in the "blog" directory and named "article".
+
+Query String: The query string allows passing parameters to the server for dynamic content retrieval. It follows a "?" character and consists of key-value pairs separated by "&". For example, "?page=2&sort=asc" may be used to request the second page of results sorted in ascending order.
+
+Fragment Identifier: The fragment identifier specifies a specific portion or anchor within a resource. It is preceded by a "#" character and is commonly used in web pages to navigate to a specific section of a document. For example, "#section2" would scroll the page to the section with the corresponding ID.
+
+
+### Three way and four way handshake
+
+hree-Way Handshake:
+
+Purpose: The three-way handshake is used during the establishment of a TCP connection between a client and a server. It ensures that both parties are ready to communicate and establishes the initial sequence numbers for reliable data transfer.
+
+Steps:
+a. SYN: The client sends a TCP segment with the SYN flag set to the server to initiate the connection request.
+b. SYN-ACK: The server responds by sending a TCP segment with the SYN and ACK flags set, acknowledging the client's request and indicating its readiness to establish the connection.
+c. ACK: The client acknowledges the server's response by sending a TCP segment with the ACK flag set. This finalizes the three-way handshake, and the TCP connection is established.
+
+Four-Way Handshake:
+
+Purpose: The four-way handshake is used during the termination of a TCP connection. It allows both the client and server to confirm the termination request and ensure that all pending data has been transmitted and acknowledged.
+
+Steps:
+a. FIN: Either the client or server initiates the connection termination by sending a TCP segment with the FIN flag set to indicate the intention to close the connection.
+b. ACK: The receiving party sends an acknowledgment (ACK) segment to confirm the receipt of the FIN and acknowledges that it has no more data to send.
+c. FIN: The receiving party, after acknowledging the FIN, may also decide to close the connection. It sends a TCP segment with the FIN flag set back to the other party.
+d. ACK: The other party acknowledges the FIN segment by sending an ACK, confirming the receipt of the FIN. This completes the four-way handshake, and the TCP connection is fully terminated.

@@ -203,9 +203,8 @@ This error tells me that nslookup couldn't communicate with my DNS server. That 
 
 
 
-complete networking
-complete linux in depth
-complete vmware
-grading
-
-
+## Difference between VM and containers
+  * Virtual machines offer hardware level isolation and containers offer software level isolation.
+  * Virtual machines require a hypervisor to manage resources whereas containers use kernel features like namespaces and cgroups to share the host OS resources
+  * High overhead because of duplication of OS components
+  

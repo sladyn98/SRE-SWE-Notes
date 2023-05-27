@@ -147,3 +147,43 @@ In the child process, we want to run the command given by the user. So, we use o
 
 The third condition means that `fork()` executed successfully. The parent process will land here. We know that the child is going to execute the process, so the parent needs to wait for the command to finish running. We use waitpid() to wait for the process’s state to change. Unfortunately, waitpid() has a lot of options (like exec()). Processes can change state in lots of ways, and not all of them mean that the process has ended. A process can either exit (normally, or with an error code), or it can be killed by a signal. So, we use the macros provided with waitpid() to wait until either the processes are exited or killed. Then, the function finally returns a 1, as a signal to the calling function that we should prompt for input again.
 
+## File descriptors
+
+Let us learn a bit about file descriptors and how linux handles file descriptors. A file descriptor is generally an integer and it is used by linux to denote an open file. 
+Every process in linux has a file descriptor table which stores the file descriptors that the process has opened. You also have a system wide open file descriptor table.
+
+`open`: The open syscall returns the lowest file descriptor not currently used for that process. 
+`dup`: The dup syscall is used to duplicate a file descriptor, it is used when you want to redirect output say for example you want to redirect output from stdout to a file, you can duplicate that file descriptor and then assign it to stdout.
+
+
+Most linux kernels define seven types of files.
+1) Regular files
+2) Directories
+3) Character device files
+4) Block device files
+5) Local domain sockets
+6) Named pipes (FIFOs) and
+7) Symbolic links
+
+`read` function call:
+ the read function reads data from a file descriptor into a buffer. It returns the number of bytes read, which may be less than the requested amount. A return value of 0 indicates the end of the file, while -1 signifies an error. Short reads are possible, and the handling of errors and end-of-file conditions depends on the specific situation and the nature of the input source.
+
+### Inodes
+
+Inodes are datastructures inside linux that are used to store information about files. They generally store information like the following:
+
+  * Size
+  * Permission
+  * Owner/Group
+  * Location of the hard drive
+  * Date/time
+  * Other information
+
+When a new file is created it is assigned an inode number and a file name and this inode number is unique within that file system.
+There is an inode table to store all of this information
+
+#### Symlinks (Soft and Hard links)
+
+Hard links is an additional name or reference pointing to the same inode. Any change made to either of the files will reflect in all the other hard links because they point to the same inode. 
+
+Soft links are shortcuts, they bascially point to the orginal file. Soft link creation involves the creation of a new inode that contains the path to the original file. It does not directly point to the inode of the original file. It gets treated as a special file with the path to the original as a reference.

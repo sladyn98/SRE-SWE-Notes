@@ -20,7 +20,33 @@ Each process has a program counter keeping track of the next instruction to be e
 
 To create a process linux uses the `fork` command where it creates a new process identical to the one it is running. The one that calls fork is called as the parent process and the one that is created is called the child process. The parent gets assigned the PID of the child and the child gets returned a PID of 0. This is how the processes identify which one is which
 
+Process memory is divided into four sections as shown
+
+<p align="center">
+  <img src="p_struct.jpg" />
+</p>
+
+
+1) The text section comprises the compiled program code, read in from non-volatile storage when the program is launched.
+2) The data section stores global and static variables, allocated and initialized prior to executing main.
+3) The heap is used for dynamic memory allocation, and is managed via calls to new, delete, malloc, free, etc.
+4) The stack is used for local variables. Space on the stack is reserved for local variables when they are declared ( at function entrance or elsewhere, depending on the language ), and the space is freed up when the variables go out of scope. Note that the stack is also used for function return values, and the exact mechanisms of stack management may be language specific.
+5) Note that the stack and the heap start at opposite ends of the process's free space and grow towards each other. If they should ever meet, then either a stack overflow error will occur, or else a call to new or malloc will fail due to insufficient memory available.
+
+**Process Represenation**
+
+**Context Switching**
+Context switching is the process of saving and restoring the state of a process or thread so that multiple processes or threads can share a single CPU. It involves storing the current execution context (e.g., CPU registers, program counter, stack pointer) of a running process, loading the saved context of another process, and transferring control to it. Context switching allows for multitasking and efficient CPU utilization in a multi-process or multi-threaded environment.
+
+
 **Communication** : Processes can communicate using pipes.These are channels between processes that can be used to read and write data. Reading data is a blocking operation in that it waits for data to be inserted into the pipe 
+
+
+## Inter process communication
+
+**Shared Memory**: Shared memory is an inter-process communication (IPC) mechanism where multiple processes can share a common region of memory. It allows processes to exchange data without the need for copying or transferring the data between them. Instead, they directly access the shared memory region, improving efficiency and reducing overhead. Processes can read from and write to shared memory, enabling fast and efficient communication and synchronization between cooperating processes.
+
+
 
 ```
 sort <f | head
@@ -147,8 +173,7 @@ In the child process, we want to run the command given by the user. So, we use o
 
 The third condition means that `fork()` executed successfully. The parent process will land here. We know that the child is going to execute the process, so the parent needs to wait for the command to finish running. We use waitpid() to wait for the process’s state to change. Unfortunately, waitpid() has a lot of options (like exec()). Processes can change state in lots of ways, and not all of them mean that the process has ended. A process can either exit (normally, or with an error code), or it can be killed by a signal. So, we use the macros provided with waitpid() to wait until either the processes are exited or killed. Then, the function finally returns a 1, as a signal to the calling function that we should prompt for input again.
 
-## File descriptors
-
+## File System
 Let us learn a bit about file descriptors and how linux handles file descriptors. A file descriptor is generally an integer and it is used by linux to denote an open file. 
 Every process in linux has a file descriptor table which stores the file descriptors that the process has opened. You also have a system wide open file descriptor table.
 
@@ -168,6 +193,12 @@ Most linux kernels define seven types of files.
 `read` function call:
  the read function reads data from a file descriptor into a buffer. It returns the number of bytes read, which may be less than the requested amount. A return value of 0 indicates the end of the file, while -1 signifies an error. Short reads are possible, and the handling of errors and end-of-file conditions depends on the specific situation and the nature of the input source.
 
+ ### How are files created
+ When a new file is created, a new FCB is allocated and filled out with important information regarding the new file. The appropriate directory is modified with the new file name and FCB information.
+When a file is accessed during a program, the open( ) system call reads in the FCB information from disk, and stores it in the system-wide open file table. An entry is added to the per-process open file table referencing the system-wide table, and an index into the per-process table is returned by the open( ) system call. UNIX refers to this index as a file descriptor, and Windows refers to it as a file handle.
+If another process already has a file open when a new request comes in for the same file, and it is sharable, then a counter in the system-wide table is incremented and the per-process table is adjusted to point to the existing entry in the system-wide table.
+When a file is closed, the per-process table entry is freed, and the counter in the system-wide table is decremented. If that counter reaches zero, then the system wide table is also freed. Any data currently stored in memory cache for this file is written out to disk if necessary.
+
 ### Inodes
 
 Inodes are datastructures inside linux that are used to store information about files. They generally store information like the following:
@@ -182,8 +213,38 @@ Inodes are datastructures inside linux that are used to store information about 
 When a new file is created it is assigned an inode number and a file name and this inode number is unique within that file system.
 There is an inode table to store all of this information
 
-#### Symlinks (Soft and Hard links)
+### Symlinks (Soft and Hard links)
 
 Hard links is an additional name or reference pointing to the same inode. Any change made to either of the files will reflect in all the other hard links because they point to the same inode. 
 
 Soft links are shortcuts, they bascially point to the orginal file. Soft link creation involves the creation of a new inode that contains the path to the original file. It does not directly point to the inode of the original file. It gets treated as a special file with the path to the original as a reference.
+
+
+### Allocation Methods
+
+**Contiguous Allocation** : 
+  * In contigous allocation files are allocated sequentially.
+  * Reading is easy beacuase disk head does not have to move much
+  * Problems can arise when files grow, or if the exact size of a file is unknown at creation time:
+      Over-estimation of the file's final size increases external fragmentation and wastes disk space.
+      Under-estimation may require that a file be moved or a process aborted if the file grows beyond its originally allocated space.
+      If a file grows slowly over a long time period and the total final space must be allocated initially, then a lot of space becomes unusable before the file fills the space.
+
+**Linked List Allocation** : As you can tell files are allocated linked to each other
+  * Harder to access because we need to traverse the entire linked list to find a particular file
+  * DLL provide some protection but again it is a wastage of space.
+
+**Indexed Allocation**: In indexed allocation, a separate block called the "index block" or "index node" is used to store the addresses or pointers to the actual data blocks that comprise a file.
+
+
+## Virtual Filesystem
+
+Components of a Virtual File System:
+
+VFS Interface: The VFS interface defines a standardized set of system calls and data structures that applications can use to interact with the file system. Examples of common system calls include open(), read(), write(), mkdir(), stat(), and unlink(). The VFS interface shields applications from the details of the underlying file systems.
+vir
+VFS Layer: The VFS layer acts as an intermediary between the VFS interface and the actual file system implementations. It receives the system calls from the applications and routes them to the appropriate file system driver based on the file system type or mount point. The VFS layer handles tasks such as path resolution, permission checks, and maintaining file descriptors.
+
+File System Drivers: File system drivers are responsible for implementing the specific operations required by a particular file system. Each file system (e.g., ext4, NTFS, FAT32) has its own driver that understands the file system's on-disk structure, metadata, and algorithms. The file system driver translates the generic VFS operations into file system-specific operations to perform the requested tasks.
+
+

@@ -119,13 +119,6 @@ strace, to look at the actual operations issued by a process
 
 An inode is a file structure 
 
-#### What is virtual memory and swapping and paging
-
-Understand that `swap` is an extension of the address space of RAM i.e if the kernel requires more memory than it is available on the ram it will swap in and out of the swap space that is a special place on the hard disk.
-
-Disk cache is just used to store disk memory that can be easily accessed, it borrows from the unused memory. If an app needs more memory it just deallocates from the disk cache.
-
-
 #### How to drop cache in linux
 
 You basically send an echo command to proc filesystem 
@@ -207,4 +200,37 @@ This error tells me that nslookup couldn't communicate with my DNS server. That 
   * Virtual machines offer hardware level isolation and containers offer software level isolation.
   * Virtual machines require a hypervisor to manage resources whereas containers use kernel features like namespaces and cgroups to share the host OS resources
   * High overhead because of duplication of OS components
-  
+
+
+## How does the linux kernel boot up 
+
+The first step in the boot process is the POST (Power on self test), This involves sending power to the hardware to check if everything is working fine. If this fails that means the hardware is not working correctly and the boot program aborts.
+If POST succeeds it sends an INT 13H interrupt to the kernel to locate the boot program.It sends information like the sector the kernel head etc from which to read the boot process from. The boot program that linux uses which is very famous is GRUB.
+
+**GRUB stages**
+The primary function of either GRUB is to get the Linux kernel loaded into memory and running. 
+
+Stage 1: During the BIOS POST process, the BIOS searches for a boot record located in the Master Boot Record (MBR) of attached disks. The small bootstrap code in GRUB stage 1, occupying 446 bytes, is loaded into memory along with the partition table. Stage 1's main purpose is to locate and load stage 1.5. Stage 1.5, located between the boot record and the first partition, is responsible for understanding filesystem structures. Once loaded into RAM, stage 1 hands control over to stage 1.5, allowing further execution of the boot process.
+
+Stage 1.5: Stage 1.5 of GRUB (core.img) must be located between the boot record and the first partition on the disk drive. This space, historically left unused, provides enough room (31,744 bytes) for core.img (25,389 bytes). Stage 1.5 contains additional code and common filesystem drivers, enabling it to access file systems like EXT, FAT, and NTFS. Stage 2 of GRUB2 is typically located in the /boot filesystem, specifically /boot/grub2, which must be on a supported filesystem. Stage 1.5 executes with the necessary filesystem drivers to locate and load the stage 2 files from /boot.
+
+Stage 2: GRUB2 stage 2, located in the /boot/grub2 directory, does not have an image file like stages 1 and 2. It consists of runtime kernel modules loaded from /boot/grub2/i386-pc as needed. The main function of stage 2 is to locate and load a Linux kernel into RAM and hand over control to the kernel. The /boot directory contains the kernel files, typically named starting with vmlinuz. GRUB2 supports booting from multiple kernel versions, allowing fallback options in case of issues. Stage 2 loads the selected kernel into memory and transfers control to it.
+
+Kernel: During the boot process, the kernels in the /boot directory are stored in a compressed format to save space. When a selected kernel is loaded into memory, it needs to extract itself from the compressed file before proceeding. An initial RAM disk image and device maps of the hard drives are also located in /boot. Once the kernel is extracted, it loads systemd, the successor to SysV init, and hands over control to it. At this stage, the Linux kernel and systemd are running, but no user tasks are active yet.
+
+
+Systemd is a system and service manager in Linux that handles the boot process, manages services, and provides advanced features like parallelization and dependency management. It uses targets to represent different system states, manages service units, and offers runtime configuration options. With its logging system and system control utilities, systemd enhances system initialization, service management, and control in Linux environments.
+Systemd has checkpoints in the startup process represented by targets like sysinit.target and basic.target. Sysinit.target ensures that low-level services and units required for system functionality are completed. Basic.target starts units necessary for subsequent targets. The user-level targets, multi-user.target and graphical.target, can then be initialized. These targets mark the completion of the startup process, with multi-user.target leading to a text mode login and graphical.target leading to a graphical login.
+
+
+**System Shutdown**
+systemd provides various system services, such as systemd-poweroff.service, systemd-halt.service, systemd-reboot.service, and systemd-kexec.service, which are triggered by respective targets like poweroff.target, halt.target, reboot.target, and kexec.target. These services handle the actual power-off, halt, reboot, and kexec operations.
+
+When these services are run, they replace PID 1 with the systemd-shutdown tool, responsible for the shutdown process. Before shutting down, systemd-shutdown attempts to unmount file systems, disable swap devices, detach storage devices, and terminate processes.
+
+To ensure system compatibility during upgrades, the shutdown functionality is separated into a separate binary, as the running PID 1 might depend on libraries that are no longer available.
+
+Before performing the actual power-off, halt, reboot, or kexec actions, systemd-shutdown executes all executables found in the /usr/lib/systemd/system-shutdown/ directory, passing the corresponding action as an argument. These executables run in parallel, and the action is only completed when all executables finish.
+
+It is important to trigger system shutdown using commands like "systemctl poweroff" instead of executing systemd-poweroff.service directly.
+

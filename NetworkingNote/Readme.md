@@ -172,7 +172,34 @@ Four-Way Handshake:
 Purpose: The four-way handshake is used during the termination of a TCP connection. It allows both the client and server to confirm the termination request and ensure that all pending data has been transmitted and acknowledged.
 
 Steps:
-a. FIN: Either the client or server initiates the connection termination by sending a TCP segment with the FIN flag set to indicate the intention to close the connection.
-b. ACK: The receiving party sends an acknowledgment (ACK) segment to confirm the receipt of the FIN and acknowledges that it has no more data to send.
-c. FIN: The receiving party, after acknowledging the FIN, may also decide to close the connection. It sends a TCP segment with the FIN flag set back to the other party.
-d. ACK: The other party acknowledges the FIN segment by sending an ACK, confirming the receipt of the FIN. This completes the four-way handshake, and the TCP connection is fully terminated.
+FIN: The first step in the TCP four-way handshake process is the "Finish" or FIN segment sent by the device that wants to close the connection. This is the host's way of saying, "I'm done sending data and want to close the connection."
+
+ACK: The receiving device sends an "Acknowledgement" or ACK segment back to the sending host. This is the host's way of saying, "I've received your FIN segment. I'll close the connection from my end once I've sent all the data pending."
+
+FIN: After the receiving device has sent all of the remaining data, it sends its own FIN segment to the sending host. This is the device's way of saying, "I'm also done sending data and am ready to close the connection."
+
+ACK: Finally, the sending host sends an ACK segment back to the receiving host to acknowledge the received FIN. This is the host's way of saying, "I've received your FIN segment and acknowledge that you're ready to close the connection."
+
+
+**How traceroute works**
+Traceroute is a network diagnostic tool used to track the path that packets take from a source device to a destination device over an IP network. It provides valuable information about the network infrastructure and helps identify any network issues or bottlenecks along the route.
+
+Here's a detailed description of how traceroute works:
+
+1. Sending the Initial Probe: Traceroute starts by sending a series of packets called probes, each with an increasing Time-to-Live (TTL) value. The TTL value determines the number of hops (routers) the packet can traverse before it expires. The initial probe is typically sent with a TTL of 1.
+
+2. TTL Expiration and ICMP Time Exceeded Message: When a router receives a packet with a TTL of 1, it decrements the TTL value by 1 and forwards the packet to the next hop. If the TTL reaches 0 after decrementing, the router discards the packet and sends an ICMP (Internet Control Message Protocol) Time Exceeded message back to the source device.
+
+3. Capturing the ICMP Time Exceeded Message: The source device captures the ICMP Time Exceeded message and notes the IP address of the router that sent it. This IP address represents the first hop in the route from the source to the destination.
+
+4. Sending Probes with Increased TTL: Traceroute then sends the next probe with a TTL of 2, causing it to reach the second hop in the route. This process continues, increasing the TTL value by 1 with each subsequent probe.
+
+5. Recording IP Addresses: As each probe reaches a router, the source device captures the ICMP Time Exceeded message and records the IP address of the router. By progressively increasing the TTL value, traceroute identifies each router along the path and determines the route taken.
+
+6. Reaching the Destination: Eventually, one of the probes reaches the destination device. The destination device, instead of sending an ICMP Time Exceeded message, responds with an ICMP Echo Reply message indicating successful packet delivery. This confirms that the destination has been reached, and the traceroute process ends.
+
+7. Displaying the Results: Traceroute displays the recorded IP addresses and calculates the round-trip time (RTT) for each probe. The RTT is measured by sending multiple probes and recording the time taken for each probe to reach the destination and receive a reply. This information helps identify delays or bottlenecks at specific routers.
+
+It's important to note that some networks or devices may block ICMP messages or prioritize certain traffic, which can affect the accuracy and completeness of traceroute results. Additionally, traceroute uses UDP or ICMP packets by default, but it can also be configured to use TCP packets.
+
+Overall, traceroute provides valuable insights into the network path and helps diagnose network connectivity issues, analyze routing problems, and troubleshoot network performance.

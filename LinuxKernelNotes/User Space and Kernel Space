@@ -1,0 +1,21 @@
+In a Linux system, the concept of kernel space and user space refers to the separation of virtual address spaces for the operating system kernel and user processes. Each process in Linux operates in its own separate virtual address space, with user space and kernel space representing different portions of this address space.
+
+1. User Space:
+   - User space corresponds to the lower portion of the virtual address space, typically 3GB on a 32-bit system. It is the memory region where user processes run and execute their code.
+   - In user space, processes have limited privileges and can only access their own allocated memory and certain shared libraries or resources provided by the operating system.
+   - User space processes run in "user mode" and have restricted access to system resources and operations.
+
+2. Kernel Space:
+   - Kernel space corresponds to the upper portion of the virtual address space, typically 1GB on a 32-bit system. It is where the Linux kernel and its components reside.
+   - Kernel space is shared among all processes and provides services, system calls, and low-level operations required by user processes.
+   - Processes running in kernel space have higher privileges and can access and modify system resources, interact with hardware devices, and perform privileged operations.
+   - The kernel handles tasks such as managing memory, scheduling processes, handling interrupts, and providing drivers for hardware devices.
+
+Transitions between User Space and Kernel Space:
+- When a process is running in user space and needs to perform tasks that require access to system resources or interaction with the kernel, it must transition to kernel space. This transition is typically done through system calls.
+- System calls are interfaces provided by the kernel that allow user processes to request services or operations from the kernel.
+- To make a system call, the process executes a specific instruction (e.g., `int 0x80` or `syscall`), which triggers a switch to kernel mode and transfers control to the kernel.
+- While in kernel mode, the kernel executes the requested operation on behalf of the process, accesses necessary data or resources, and returns the result to the user process.
+- Once the kernel has completed the requested task, it returns control back to the user space, and the process continues its execution.
+
+The separation of kernel space and user space provides a layer of protection and isolation. It prevents user processes from directly accessing or modifying critical kernel data or interfering with other processes. The kernel acts as a privileged entity that manages and controls the system's resources, ensuring security, stability, and proper execution of tasks within the operating system.

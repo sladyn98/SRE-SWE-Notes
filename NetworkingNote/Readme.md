@@ -203,3 +203,21 @@ Here's a detailed description of how traceroute works:
 It's important to note that some networks or devices may block ICMP messages or prioritize certain traffic, which can affect the accuracy and completeness of traceroute results. Additionally, traceroute uses UDP or ICMP packets by default, but it can also be configured to use TCP packets.
 
 Overall, traceroute provides valuable insights into the network path and helps diagnose network connectivity issues, analyze routing problems, and troubleshoot network performance.
+
+
+**Explain TCP slow start**
+
+TCP slow start is a congestion control algorithm used by the Transmission Control Protocol (TCP) to determine the appropriate sending rate for data transmission. It is employed when a TCP connection is established or after a period of inactivity. The purpose of slow start is to avoid network congestion by gradually increasing the amount of data sent until the network's capacity is reached.
+
+During the slow start phase, the TCP sender initially sets a small congestion window (cwnd) size, which represents the number of unacknowledged packets that can be sent at a time. The sender starts by sending a single packet and waits for an acknowledgment (ACK) from the receiver. Upon receiving the ACK, the sender increases the cwnd by one and doubles the sending rate. This process continues for each received ACK, effectively doubling the cwnd size with each round trip time.
+
+**Define the various protocol states of DHCP**
+
+DHCPDISCOVER client->server : broadcast to locate server
+DHCPOFFER server->client : offer to client with offer of configuration parameters
+DHCPREQUEST client->server : requesting a dhcp config from server
+DHCPACK server->client : actual configuration paramters
+DHCPNAK server->client : indicating client’s notion of network address is incorrect
+DHCPDECLINE client->server : address is already in use
+DHCPRELEASE client->server : giving up of ip address
+DHCPINFORM client->server : asking for local config parameters

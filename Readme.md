@@ -58,6 +58,40 @@ It is used for multiprocessor statistics
 
 Pidstat is a little like top’s per-process summary, but prints a rolling summary instead of clearing the screen. This can be useful for watching patterns over time, and also recording what you saw (copy-n-paste) into a record of your investigation
 
+`pidstat` is a statistics reporting tool for Linux that can be used to monitor individual tasks currently being managed by the Linux kernel. It's part of the `sysstat` package of performance monitoring tools.
+
+`pidstat` is used to track the resource usage of processes including CPU usage, memory usage, I/O operations, context switching, and more. It can be used to understand system behavior and diagnose performance issues.
+
+Here are some important flags and their interpretations:
+
+- `-u` : Reports CPU statistics. The `%CPU` field represents the percentage of CPU used by the task since the last report.
+
+- `-r` : Reports page faults and memory utilization. The `minflt/s` field shows the total number of minor faults the task has made per second, whereas `majflt/s` is for major faults.
+
+- `-d` : Reports I/O statistics. `kB_rd/s` and `kB_wr/s` represent the amount of data read or written per second, respectively.
+
+- `-w` : Reports task switching activity. `cswch/s` represents the total number of voluntary context switches per second, and `nvcswch/s` the non-voluntary ones.
+
+- `-p` : Monitor specific PIDs. You can use this option followed by the PID to monitor the resource usage of a specific process.
+
+- `-l` : Display command line arguments of tasks.
+
+- `-t` : Display threads.
+
+- `-v` : Reports the stack usage of tasks.
+
+- `-C` : Filter tasks by process name.
+
+Now, in a situation where the CPU is under load, you can interpret the output of `pidstat` to determine which processes are consuming the most resources:
+
+- If you see high `%CPU` values for a process (or processes), it means that these are consuming significant CPU resources. It might be normal for some processes, but if you notice an unexpectedly high CPU usage, that might be the root cause of the load.
+
+- High values in `cswch/s` and `nvcswch/s` can indicate frequent context switching, which can degrade performance. This could be due to the system having too many processes or threads relative to the number of CPU cores, or a few processes consuming excessive CPU time.
+
+- If the `kB_rd/s` and `kB_wr/s` values are high, it means that the process is performing a lot of I/O operations, which can also contribute to the CPU load.
+
+The key is to compare these metrics to the "normal" values for your system. If certain processes are using more resources than usual, it could indicate a problem or a change in system behavior that's worth investigating. If everything seems normal but the system is still under load, it might be necessary to dig deeper or consider factors like network traffic, disk space, etc.
+
 **iostat** 
 
 `iostat -x 1`
@@ -155,6 +189,50 @@ c) You can then check for the system is waiting for resources or where exactly i
 d) You can then check if an individual process is consuming memory eg : `pidstat`
 
 
+
+# Troubleshooting disk issues
+
+
+Your list comprises various Linux commands and tools used to monitor and debug disk I/O. Here's a breakdown of each command:
+
+1. `iostat -xz 1`: `iostat` is a tool used to monitor system input/output device loading by observing the time devices are active in relation to their average transfer rates. The `-x` option displays extended statistics, and the `-z` option omits devices with no activity. The `1` at the end of the command makes `iostat` display this information every second.
+
+   For example, a typical output would look something like this:
+
+   ```
+   Device: rrqm/s wrqm/s r/s w/s rkB/s wkB/s avgrq-sz avgqu-sz await r_await w_await svctm %util
+   sda      0.00  16.00 0.00 4.00  0.00 80.00    40.00     0.03  7.50   0.00    7.50  0.50  2.00
+   ```
+
+   Here, `%util` represents the percentage of CPU time during which I/O requests were issued to the device (bandwidth utilization), `r/s` and `w/s` represent the read and write operations per second, `rkB/s` and `wkB/s` represent the data read and written per second, and `await` represents the average time (in ms) for I/O requests to be served.
+
+2. `vmstat 1`: `vmstat` reports on system processes, memory, paging, block I/O, traps, disks, and CPU activity. `1` means that these statistics are reported every second.
+
+3. `df -h`: This command displays disk space usage for all mounted filesystems. The `-h` flag shows the output in human-readable format (MB, GB).
+
+   Example output:
+
+   ```
+   Filesystem      Size  Used Avail Use% Mounted on
+   /dev/sda1       96G   75G   16G  83% /
+   tmpfs           2.0G     0  2.0G   0% /dev/shm
+   ```
+
+4. `ext4slower 10`: This command is part of BPF (Berkeley Packet Filter) performance tools and it traces slow `ext4` operations. The argument `10` would trace operations slower than 10 ms. This tool is useful for identifying slow file system operations. 
+
+5. `bioslower 10`: Similarly, `bioslower` is a BPF tool that traces slow block I/O operations. The `10` argument means it would trace operations slower than 10 ms. This can help identify slow disk I/O operations.
+
+6. `ext4dist 1`: Another BPF tool, `ext4dist` traces the distribution of `ext4` operation latency, updated every 1 second.
+
+7. `biolatency 1`: This is another BPF tool. `biolatency` measures block device I/O latency in a histogram. The `1` argument means it updates every second.
+
+8. `cat /sys/devices/…/ioerr_cnt`: This command, if available, would show the count of I/O errors that have happened on a certain device.
+
+9. `smartctl -l error /dev/sda1`: `smartctl` is a command-line tool for controlling SMART (Self-Monitoring, Analysis, and Reporting Technology) data on modern hard disk and solid-state drives. `-l error /dev/sda1` would list the error log
+
+ for `/dev/sda1`.
+
+In summary, these commands help you monitor the system's disk I/O activities, including disk usage, I/O statistics, and latency, along with capturing any errors that may occur.
 
 # Troubleshooting networking issues
 

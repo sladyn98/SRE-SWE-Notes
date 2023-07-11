@@ -99,9 +99,7 @@ When the `exec()` function is called, the current process is replaced by the new
 
 These `exec()` functions are powerful tools for executing new programs within a process and are commonly used in scenarios such as launching external commands, implementing shells, or setting up custom environments for program execution.
 
-Clone() : This call is similar to the `fork` call 
-
-Certainly! The `clone()` system call in Unix-like operating systems is similar to `fork()`, but with additional flexibility. It allows for the creation of a new process that shares certain parts of its execution context with the calling process. Here's a detailed explanation of `clone()` along with an example:
+Clone() : This system call in Unix-like operating systems is similar to `fork()`, but with additional flexibility. It allows for the creation of a new process that shares certain parts of its execution context with the calling process. Here's a detailed explanation of `clone()` along with an example:
 
 The prototype for `clone()` is as follows:
 

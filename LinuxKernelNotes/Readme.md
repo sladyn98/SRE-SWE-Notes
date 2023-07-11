@@ -269,3 +269,18 @@ VFS Layer: The VFS layer acts as an intermediary between the VFS interface and t
 File System Drivers: File system drivers are responsible for implementing the specific operations required by a particular file system. Each file system (e.g., ext4, NTFS, FAT32) has its own driver that understands the file system's on-disk structure, metadata, and algorithms. The file system driver translates the generic VFS operations into file system-specific operations to perform the requested tasks.
 
 
+## Linux File System Layers
+
+- **User Applications:** e.g., ls, cat, echo, more, touch
+  - ↓
+- **System Call Interface:** Functions such as open(), read(), write(), close(), etc.
+  - ↓
+- **Virtual File System (VFS):** Provides a uniform API for different FS types, handles inode and dentry
+  - ↓
+- **File System-specific Implementation:** e.g., ext4, xfs, NTFS, Btrfs, procfs, nfs, etc.
+  - ↓
+- **Block Device Interface:** Handles communication between the file system and the hardware, disk scheduling
+  - ↓
+- **Hardware:** Disk drives, SSD, etc.
+
+The arrows indicate the flow of a call from a user application down to the hardware.

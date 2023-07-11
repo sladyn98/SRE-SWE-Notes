@@ -221,3 +221,23 @@ DHCPNAK server->client : indicating client’s notion of network address is inco
 DHCPDECLINE client->server : address is already in use
 DHCPRELEASE client->server : giving up of ip address
 DHCPINFORM client->server : asking for local config parameters
+
+
+**How ping works**
+The `ping` command is a simple, widely-used utility that tests network connectivity between two hosts. It uses the Internet Control Message Protocol (ICMP), which is part of the Internet Protocol Suite. Here's a simplified breakdown of how it works:
+
+1. You run the `ping` command targeting a specific IP address or hostname. For example: `ping www.google.com`.
+
+2. Your system constructs an ICMP Echo Request packet. This packet contains a payload of data, which is typically 56 bytes, leading to a total size of 64 bytes including the header. The payload often includes a timestamp, which the `ping` utility can use to calculate the round-trip time.
+
+3. Your system sends the ICMP Echo Request packet to the target IP address.
+
+4. When the target system receives the ICMP Echo Request, it constructs an ICMP Echo Reply. If the system is functioning properly and is configured to respond to ICMP Echo Requests, the reply will contain the exact payload received in the request.
+
+5. Your system receives the ICMP Echo Reply. The `ping` utility notes the time of the receipt and subtracts the timestamp in the payload to calculate the round-trip time. This time is typically displayed in milliseconds.
+
+6. Steps 2-5 are repeated for as many times as the `ping` command is configured to run, often until you stop the command, or for a default number of times (usually four times in Windows and continuously until stopped in Unix/Linux).
+
+7. After all requests have been sent and replies (if any) have been received, the `ping` utility provides a summary of the results, including the percentage of packet loss and the minimum, maximum, average, and possibly standard deviation of the round-trip times.
+
+One thing to keep in mind is that not receiving a ping reply (ICMP Echo Reply) from the target system doesn't always mean that the system is down or not reachable. Some systems are configured to ignore ICMP Echo Requests or might be behind firewalls that drop those packets. The `ping` utility only tests ICMP connectivity, not connectivity over protocols such as TCP or UDP, which are used for most applications.
